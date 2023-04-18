@@ -1,0 +1,8 @@
+{
+  "terminal.integrated.automationProfile.windows": {
+    "path": "C:\\Users\\n-kawabata\\AppData\\Local\\Programs\\node-v18.16.0-win-x64;${env:path}"
+  },
+  "terminal.integrated.env.windows": {
+    "path": "C:\\Users\\n-kawabata\\AppData\\Local\\Programs\\node-v18.16.0-win-x64;${env:path}"
+  }
+}

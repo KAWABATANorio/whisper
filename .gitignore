@@ -1,0 +1,6 @@
+config.json
+tsconfig.tsbuildinfo
+recordings/*.webm
+dist
+node_modules/
+.env
