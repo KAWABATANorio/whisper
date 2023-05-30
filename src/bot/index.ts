@@ -2,10 +2,11 @@ import { getVoiceConnection } from '@discordjs/voice';
 import { GatewayIntentBits } from 'discord-api-types/v10';
 import { Interaction, Constants, Client } from 'discord.js';
 import { deploy } from './deploy';
+import { botEvent } from './event'
 import { interactionHandlers } from './interactions';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
-const { token } = require('../config.json') as { token: string };
+// const { token } = require('../config.json') as { token: string };
 
 const client = new Client({
 	intents: [GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildMessages, GatewayIntentBits.Guilds],
@@ -48,4 +49,6 @@ client.on(Events.INTERACTION_CREATE, async (interaction: Interaction) => {
 
 client.on(Events.ERROR, console.warn);
 
-void client.login(token);
+// void client.login(token);
+
+export { client, botEvent };

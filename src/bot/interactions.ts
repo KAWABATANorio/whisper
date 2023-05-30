@@ -26,12 +26,12 @@ async function join(
 		}
 	}
 
-  client.users.cache.forEach((_user, userId) => {
-    if (client.application?.id === userId) return;
-		recordable.add(userId);
-		const receiver = connection!.receiver;
-    createListeningStream(receiver, userId, client.users.cache.get(userId));
-  });
+	client.users.cache.forEach((_user, userId) => {
+		if (client.application?.id === userId) return;
+			recordable.add(userId);
+			const receiver = connection!.receiver;
+		createListeningStream(receiver, userId, client.users.cache.get(userId));
+	});
 
 	try {
 		await entersState(connection, VoiceConnectionStatus.Ready, 20e3);
@@ -50,6 +50,7 @@ async function join(
 	await interaction.followUp('Ready!');
 }
 
+/*
 async function record(
 	interaction: CommandInteraction,
 	recordable: Set<Snowflake>,
@@ -70,6 +71,7 @@ async function record(
 		await interaction.reply({ ephemeral: true, content: 'Join a voice channel and then try that again!' });
 	}
 }
+*/
 
 async function leave(
 	interaction: CommandInteraction,
@@ -96,5 +98,5 @@ export const interactionHandlers = new Map<
 	) => Promise<void>
 >();
 interactionHandlers.set('join', join);
-interactionHandlers.set('record', record);
+// interactionHandlers.set('record', record);
 interactionHandlers.set('leave', leave);
