@@ -12,8 +12,8 @@ function getDisplayName(userId: string, user?: User) {
 export function createListeningStream(receiver: VoiceReceiver, userId: string, user?: User) {
   const opusStream = receiver.subscribe(userId, {
     end: {
-      behavior: EndBehaviorType.AfterSilence,
-      duration: 1000,
+      behavior: EndBehaviorType.AfterInactivity,
+      duration: 500,
     },
   });
 

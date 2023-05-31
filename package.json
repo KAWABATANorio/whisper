@@ -6,7 +6,7 @@
 	"scripts": {
 		"whisper": "ts-node-dev --inspect -- tests/whisper.ts",
 		"start": "ts-node-dev --inspect -- src/index.ts",
-		"start:build": "npm run build && node dist/bot",
+		"start:build": "npm run build && node dist",
 		"lint": "prettier --cache --check . && eslint src --ext mjs,js,ts --cache",
 		"format": "prettier --cache --write . && eslint src --ext mjs,js,ts --fix --cache",
 		"build": "rimraf dist && tsc",
