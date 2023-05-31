@@ -2,30 +2,28 @@ import { createReadStream, createWriteStream } from 'node:fs';
 import ffmpeg from 'fluent-ffmpeg';
 
 async function ogg2webm(): Promise<number> {
-  const input = createReadStream(__dirname + '/../recordings/imposter.ogg');
-  const output = createWriteStream(__dirname + '/../recordings/imposter.webm');
+  const input = createReadStream(`${__dirname}/../recordings/imposter.ogg`);
+  const output = createWriteStream(`${__dirname}/../recordings/imposter.webm`);
   const start = new Date();
 
-  return await (async () => {
-    return new Promise((resolve, reject) => {
-      ffmpeg()
-        .input(input)
-        .inputFormat('ogg')
-        .audioCodec('libopus')
-        .audioChannels(1)
-        .outputFormat('webm')
-        .on('error', (err: Error) => {
-          console.warn(`❌ Error recording file - ${err.message}`);
-          reject(err);
-        })
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        .on('end', () => {
-          const measure = new Date().getTime() - start.getTime();
-          resolve(measure);
-        })
-        .pipe(output, { end: true });
-    });
-  })();
+  return new Promise((resolve, reject) => {
+    ffmpeg()
+      .input(input)
+      .inputFormat('ogg')
+      .audioCodec('libopus')
+      .audioChannels(1)
+      .outputFormat('webm')
+      .on('error', (err: Error) => {
+        console.warn(`❌ Error recording file - ${err.message}`);
+        reject(err);
+      })
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      .on('end', () => {
+        const measure = new Date().getTime() - start.getTime();
+        resolve(measure);
+      })
+      .pipe(output, { end: true });
+  });
 }
 
 test('ffmpeg', async () => {

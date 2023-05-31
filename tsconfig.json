@@ -44,6 +44,6 @@
 			"tslib" : ["./node_modules/tslib/tslib.d.ts"]
 		}
 	},
-	"include": ["src/*.ts"],
+	"include": ["src/**/*.ts", "tests/**/*.ts"],
 	"exclude": []
 }
