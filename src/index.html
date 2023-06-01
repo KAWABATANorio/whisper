@@ -27,13 +27,13 @@
       background-color: #333;
       border-radius: 10px;
       padding: 8px;
-      font-size: 24px;
+      font-size: 32px;
       color: #fff;
       vertical-align: middle;
     }
     .message {
-      font-size: 45px;
-      color: #333;
+      font-size: 64px;
+      color: magenta;
       vertical-align: middle;
       margin-left: 12px;
     }
@@ -53,7 +53,7 @@
       console.log(`${msg.username}: ${msg.message}`);
 
       userElem.textContent = msg.username;
-      messageElem.style.color = msg.hexAccentColor ?? '#333';
+      messageElem.style.color = msg.color ?? 'magenta';
       messageElem.textContent = msg.message;
       continerElem.style.display = 'block';
 
