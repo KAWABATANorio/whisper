@@ -17,6 +17,7 @@ async function join(
 				guildId: channel.guild.id,
 				selfDeaf: false,
 				selfMute: true,
+				// @ts-expect-error Currently voice is built in mind with API v10 whereas discord.js v13 uses API v9.
 				adapterCreator: channel.guild.voiceAdapterCreator,
 			});
 		} else {
