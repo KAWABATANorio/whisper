@@ -13,7 +13,7 @@ export function createListeningStream(receiver: VoiceReceiver, userId: string, u
   const opusStream = receiver.subscribe(userId, {
     end: {
       behavior: EndBehaviorType.AfterInactivity,
-      duration: 500,
+      duration: 300,
     },
   });
 
@@ -34,7 +34,6 @@ export function createListeningStream(receiver: VoiceReceiver, userId: string, u
   console.log(`👂 Started recording ${filename}`);
   const start = new Date();
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
   ffmpeg()
     .input(opusStream.pipe(oggStream))
     .inputFormat('ogg')
@@ -44,7 +43,6 @@ export function createListeningStream(receiver: VoiceReceiver, userId: string, u
     .on('error', (err: Error) => {
       console.warn(`❌ Error recording file ${filename} - ${err.message}`);
     })
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     .on('end', () => {
       console.log(`✅ Recorded ${filename}, ${(new Date().getTime() - start.getTime()).toLocaleString()} ms`);
 
