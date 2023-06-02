@@ -22,7 +22,7 @@ botEvent.on('message', (filename: string, user: User | undefined, done: () => vo
   console.log(filename);
   (async () => {
     try {
-      const text = await whisper(filename);
+      const text = (await whisper(filename)).replace(/\n/g, ' ').trim();
       if (text.length > 0) {
         console.log(`${user?.username ?? ''}: ${text}`);
         io.emit('message', {
