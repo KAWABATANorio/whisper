@@ -1,102 +1,71 @@
 import { entersState, joinVoiceChannel, VoiceConnection, VoiceConnectionStatus } from '@discordjs/voice';
-import { Client, CommandInteraction, GuildMember, Snowflake } from 'discord.js';
+import type { DiscordGatewayAdapterCreator } from '@discordjs/voice';
+import { Client, CommandInteraction, GuildMember } from 'discord.js';
 import { createListeningStream } from './createListeningStream';
 
 async function join(
-	interaction: CommandInteraction,
-	recordable: Set<Snowflake>,
-	client: Client,
-	connection?: VoiceConnection,
+  interaction: CommandInteraction,
+  client: Client,
+  connection?: VoiceConnection,
 ) {
-	await interaction.deferReply({ ephemeral: true });
-	if (!connection) {
-		if (interaction.member instanceof GuildMember && interaction.member.voice.channel) {
-			const channel = interaction.member.voice.channel;
-			connection = joinVoiceChannel({
-				channelId: channel.id,
-				guildId: channel.guild.id,
-				selfDeaf: false,
-				selfMute: true,
-				// @ts-expect-error Currently voice is built in mind with API v10 whereas discord.js v13 uses API v9.
-				adapterCreator: channel.guild.voiceAdapterCreator,
-			});
-		} else {
-			await interaction.followUp('Join a voice channel and then try that again!');
-			return;
-		}
-	}
+  await interaction.deferReply({ ephemeral: true });
+  if (!connection) {
+    if (interaction.member instanceof GuildMember && interaction.member.voice.channel) {
+      const channel = interaction.member.voice.channel;
+      connection = joinVoiceChannel({
+        channelId: channel.id,
+        guildId: channel.guild.id,
+        selfDeaf: false,
+        selfMute: true,
+        adapterCreator: channel.guild.voiceAdapterCreator as any as DiscordGatewayAdapterCreator,
+      });
+    } else {
+      await interaction.followUp('Join a voice channel and then try that again!');
+      return;
+    }
+  }
 
-	client.users.cache.forEach((_user, userId) => {
-		if (client.application?.id === userId) return;
-			recordable.add(userId);
-			const receiver = connection!.receiver;
-		createListeningStream(receiver, userId, client.users.cache.get(userId));
-	});
+  client.users.cache.forEach((_user, userId) => {
+    if (client.application?.id === userId) return;
+    const receiver = connection!.receiver;
+    createListeningStream(receiver, userId, client.users.cache.get(userId));
+  });
 
-	try {
-		await entersState(connection, VoiceConnectionStatus.Ready, 20e3);
-		const receiver = connection.receiver;
+  try {
+    await entersState(connection, VoiceConnectionStatus.Ready, 20e3);
+    const receiver = connection.receiver;
 
-		receiver.speaking.on('start', (userId) => {
-			if (recordable.has(userId)) {
-				createListeningStream(receiver, userId, client.users.cache.get(userId));
-			}
-		});
-	} catch (error) {
-		console.warn(error);
-		await interaction.followUp('Failed to join voice channel within 20 seconds, please try again later!');
-	}
+    receiver.speaking.on('start', (userId) => {
+      createListeningStream(receiver, userId, client.users.cache.get(userId));
+    });
+  } catch (error) {
+    console.warn(error);
+    await interaction.followUp('Failed to join voice channel within 20 seconds, please try again later!');
+  }
 
-	await interaction.followUp('Ready!');
+  await interaction.followUp('Ready!');
 }
-
-/*
-async function record(
-	interaction: CommandInteraction,
-	recordable: Set<Snowflake>,
-	client: Client,
-	connection?: VoiceConnection,
-) {
-	if (connection) {
-		const userId = interaction.options.get('speaker')!.value! as Snowflake;
-		recordable.add(userId);
-
-		const receiver = connection.receiver;
-		if (connection.receiver.speaking.users.has(userId)) {
-			createListeningStream(receiver, userId, client.users.cache.get(userId));
-		}
-
-		await interaction.reply({ ephemeral: true, content: 'Listening!' });
-	} else {
-		await interaction.reply({ ephemeral: true, content: 'Join a voice channel and then try that again!' });
-	}
-}
-*/
 
 async function leave(
-	interaction: CommandInteraction,
-	recordable: Set<Snowflake>,
-	_client: Client,
-	connection?: VoiceConnection,
+  interaction: CommandInteraction,
+  _client: Client,
+  connection?: VoiceConnection,
 ) {
-	if (connection) {
-		connection.destroy();
-		recordable.clear();
-		await interaction.reply({ ephemeral: true, content: 'Left the channel!' });
-	} else {
-		await interaction.reply({ ephemeral: true, content: 'Not playing in this server!' });
-	}
+  if (connection) {
+    connection.destroy();
+    await interaction.reply({ ephemeral: true, content: 'Left the channel!' });
+  } else {
+    await interaction.reply({ ephemeral: true, content: 'Not playing in this server!' });
+  }
 }
 
 export const interactionHandlers = new Map<
-	string,
-	(
-		interaction: CommandInteraction,
-		recordable: Set<Snowflake>,
-		client: Client,
-		connection?: VoiceConnection,
-	) => Promise<void>
+  string,
+  (
+    interaction: CommandInteraction,
+    client: Client,
+    connection?: VoiceConnection,
+  ) => Promise<void>
 >();
 interactionHandlers.set('join', join);
-// interactionHandlers.set('record', record);
 interactionHandlers.set('leave', leave);

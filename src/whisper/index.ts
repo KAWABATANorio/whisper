@@ -1,6 +1,6 @@
 import { createReadStream } from 'node:fs';
 import * as dotenv from 'dotenv';
-import { Configuration, OpenAIApi } from  'openai';
+import { Configuration, OpenAIApi } from 'openai';
 
 dotenv.config();
 

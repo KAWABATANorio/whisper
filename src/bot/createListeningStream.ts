@@ -50,7 +50,7 @@ export function createListeningStream(receiver: VoiceReceiver, userId: string, u
 
       const done = () => {
         // eslint-disable-next-line @typescript-eslint/no-empty-function
-        rm(filename, () => {});
+        rm(filename, () => { });
       };
       botEvent.emit('message', filename, user, done);
     })
