@@ -17,13 +17,6 @@
       text-align: center;
       display: none;
     }
-    .stroke {
-      color: #333;
-      text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff,
-      -1px 1px 0 #fff, 1px -1px 0 #fff,
-      0 1px 0 #fff, 0 -1px 0 #fff,
-      -0 1px 0 #fff, 1px 0 0 #fff
-    }
     .username {
       background-color: #333;
       border-radius: 10px;
@@ -44,7 +37,7 @@
 <body>
   <div class="content">
     <ul>
-      <li id="message0" class="message-conteiner"><span class="username">モバきち</span><span class="message stroke">4枚やった!</span></li>
+      <li id="message0" class="message-conteiner"><span class="username">モバきち</span><span class="message">4枚やった!</span></li>
     </ul>
   </div>
   <script>
@@ -63,10 +56,30 @@
       const newUserElem = newContainerElem.querySelector('.username');
       const newMessageElem = newContainerElem.querySelector('.message');
       messageList.insertBefore(newContainerElem, containerElem);
+
+      let oc = '#333';
+      let ow = 1.5;
+      if (msg.color) {
+        const r = parseInt(msg.color.substr(1, 2), 16);
+        const g = parseInt(msg.color.substr(3, 2), 16);
+        const b = parseInt(msg.color.substr(5, 2), 16);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        if (brightness < 128) {
+          oc = '#fff'
+          ow = 1;
+        }
+      }
+      const textShadow = `
+        ${ow}px ${ow}px 0 ${oc}, -${ow}px -${ow}px 0 ${oc},
+        -${ow}px ${ow}px 0 ${oc}, ${ow}px -${ow}px 0 ${oc},
+        0 ${ow}px 0 ${oc}, 0 -${ow}px 0 ${oc},
+        -0 ${ow}px 0 ${oc}, ${ow}px 0 0 ${oc}`;
+
       newUserElem.textContent = msg.username;
       newMessageElem.style.color = msg.color ?? 'magenta';
       newMessageElem.textContent = msg.message;
       newContainerElem.style.display = 'block';
+      newMessageElem.style.textShadow = textShadow;
 
       setTimeout(() => {
         newContainerElem.remove();
@@ -76,7 +89,8 @@
       setTimeout(() => {
         addMessage({
           username: "モバ吉",
-          message: `${Math.floor(Math.random() * 10)}枚やった`
+          message: `${Math.floor(Math.random() * 10)}枚やった`,
+          color: "#ffffff"
         });
       }, Math.floor(Math.random() * 5) * 1000);
       */
@@ -84,13 +98,14 @@
     /* for debug
     addMessage({
       username: "モバ吉",
-      message: `${Math.floor(Math.random() * 10)}枚やった`
+      message: `${Math.floor(Math.random() * 10)}枚やった`,
+      color: "#112233"
     });
     */
 
     socket.on('message', msg => {
       addMessage(msg);
     });
-</script>
+  </script>
 </body>
 </html>
