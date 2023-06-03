@@ -12,7 +12,7 @@ const openai = new OpenAIApi(configuration);
 const whisper = async (inputFile: string): Promise<string> => {
   const start = new Date();
   const resp = await openai.createTranscription(
-    createReadStream(inputFile),
+    createReadStream(inputFile) as any as File,
     'whisper-1',
     undefined,
     'text',
