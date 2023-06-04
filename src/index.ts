@@ -19,7 +19,6 @@ server.listen(3000);
 void client.login(process.env.DISCORD_APP_TOKEN);
 
 botEvent.on('message', (filename: string, user: User | undefined, done: () => void) => {
-  console.log(filename);
   (async () => {
     try {
       if (user && !user.hexAccentColor) {

@@ -13,7 +13,7 @@ export function createListeningStream(receiver: VoiceReceiver, userId: string, u
   const filename = `./recordings/${Date.now()}-${getDisplayName(userId, user)}.webm`;
   console.log(`👂 Started recording ${filename}`);
 
-  (() => {
+  try {
     const opusStream = receiver.subscribe(userId, {
       end: {
         behavior: EndBehaviorType.AfterInactivity,
@@ -31,10 +31,7 @@ export function createListeningStream(receiver: VoiceReceiver, userId: string, u
       },
     });
 
-    const filename = `./recordings/${Date.now()}-${getDisplayName(userId, user)}.webm`;
     const out = createWriteStream(filename);
-
-    console.log(`👂 Started recording ${filename}`);
     const start = new Date();
 
     ffmpeg()
@@ -43,8 +40,8 @@ export function createListeningStream(receiver: VoiceReceiver, userId: string, u
       .audioCodec('libopus')
       .audioChannels(1)
       .outputFormat('webm')
-      .on('error', (err: Error) => {
-        console.warn(`❌ Error recording file ${filename} - ${err.message}`);
+      .on('error', (e: Error) => {
+        throw e;
       })
       .on('end', () => {
         console.log(`✅ Recorded ${filename}, ${(new Date().getTime() - start.getTime()).toLocaleString()} ms`);
@@ -56,5 +53,9 @@ export function createListeningStream(receiver: VoiceReceiver, userId: string, u
         botEvent.emit('message', filename, user, done);
       })
       .pipe(out, { end: true });
-  })();
+  } catch (e) {
+    console.warn(`❌ Error recording file ${filename} - ${(e as Error).message}`);
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    rm(filename, () => { });
+  }
 }
