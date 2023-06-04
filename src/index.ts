@@ -1,4 +1,5 @@
 import http from 'http';
+import path from 'node:path';
 import type { User } from 'discord.js';
 import * as dotenv from 'dotenv';
 import express from 'express';
@@ -12,7 +13,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 app.get('/', (_req, res) => {
-  res.sendFile(`${__dirname}/index.html`);
+  res.sendFile(path.resolve('./src/index.html'));
 });
 server.listen(3000);
 

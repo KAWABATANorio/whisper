@@ -23,7 +23,7 @@ export function createListeningStream(receiver: VoiceReceiver, userId: string, u
 
     const oggStream = new prism.opus.OggLogicalBitstream({
       opusHead: new prism.opus.OpusHead({
-        channelCount: 1,
+        channelCount: 2,
         sampleRate: 48000,
       }),
       pageSizeControl: {
@@ -38,7 +38,7 @@ export function createListeningStream(receiver: VoiceReceiver, userId: string, u
       .input(opusStream.pipe(oggStream))
       .inputFormat('ogg')
       .audioCodec('libopus')
-      .audioChannels(1)
+      .audioChannels(2)
       .outputFormat('webm')
       .on('error', (e: Error) => {
         throw e;
