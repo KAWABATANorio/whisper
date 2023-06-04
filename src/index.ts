@@ -30,13 +30,14 @@ botEvent.on('message', (filename: string, user: User | undefined, done: () => vo
         console.log(`${user?.username ?? ''}: ${text}`);
         io.emit('message', {
           username: user?.username,
+          avatar: user?.avatarURL(),
           color: user?.hexAccentColor,
           message: text,
         });
       }
-      done();
     } catch (e) {
-      console.error(filename, e);
+      console.error(filename, `❌ Failed transcript filename ${(e as Error).message}`);
     }
+    done();
   })();
 });

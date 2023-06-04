@@ -1,5 +1,5 @@
 import { getVoiceConnection } from '@discordjs/voice';
-import { Interaction, Client, Events, GatewayIntentBits, REST, Routes } from 'discord.js';
+import { Interaction, Client, Events, GatewayIntentBits } from 'discord.js';
 import { deploy } from './deploy';
 import { botEvent } from './event'
 import { interactionHandlers } from './interactions';
@@ -41,6 +41,5 @@ client.on(Events.InteractionCreate, async (interaction: Interaction) => {
 });
 
 client.on(Events.Error, console.warn);
-client.on(Events.ERROR, console.warn);
 
-export { setup, client, botEvent };
+export { client, botEvent };
