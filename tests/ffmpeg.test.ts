@@ -1,29 +1,11 @@
-import { createReadStream, createWriteStream } from 'node:fs';
-import ffmpeg from 'fluent-ffmpeg';
+import { createReadStream } from 'node:fs';
+import { opusStreamToWebm } from '../src/ffmpeg';
 
 async function ogg2webm(): Promise<number> {
   const input = createReadStream(`${__dirname}/../recordings/imposter.ogg`);
-  const output = createWriteStream(`${__dirname}/../recordings/imposter.webm`);
   const start = new Date();
-
-  return new Promise((resolve, reject) => {
-    ffmpeg()
-      .input(input)
-      .inputFormat('ogg')
-      .audioCodec('libopus')
-      .audioChannels(1)
-      .outputFormat('webm')
-      .on('error', (err: Error) => {
-        console.warn(`❌ Error recording file - ${err.message}`);
-        reject(err);
-      })
-      // eslint-disable-next-line @typescript-eslint/no-misused-promises
-      .on('end', () => {
-        const measure = new Date().getTime() - start.getTime();
-        resolve(measure);
-      })
-      .pipe(output, { end: true });
-  });
+  await opusStreamToWebm(input, `${__dirname}/../recordings/imposter.webm`);
+  return new Date().getTime() - start.getTime();
 }
 
 test('ffmpeg', async () => {
