@@ -1,18 +1,20 @@
-# 👂 Recorder Bot
+# 👂 Discord Transcript Bot
 
-This example shows how you can use the voice receive functionality in @discordjs/voice to record users in voice channels
-and save the audio to local Ogg files.
+Transcribing Discord voice channels using the Whisper API.
+The transcribed text is displayed on a web page and can be shown using OBS browser source.
+
+This bot based [voice-examples](https://github.com/discordjs/voice-examples)
 
 ## Usage
 
 ```sh-session
-# Clone the examples repository, copy the `recorder` files in a folder and then run:
+# Clone the repository then run:
 $ npm install
 $ npm run build
 
-# Set a bot token (see config.example.json)
-$ cp config.example.json config.json
-$ nano config.json
+# Set a bot/OpenAI token (see config.example.json)
+$ cp .env.example .env
+$ nano .env
 
 # Start the bot!
 $ npm start
