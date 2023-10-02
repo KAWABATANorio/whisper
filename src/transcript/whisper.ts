@@ -1,3 +1,4 @@
+import { spawn, ChildProcessWithoutNullStreams } from 'node:child_process';
 import { ReadStream, rm, createReadStream } from 'node:fs';
 import * as dotenv from 'dotenv';
 import { Configuration, OpenAIApi } from 'openai';
@@ -12,12 +13,38 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 export class Whisper extends Transcripter {
+
+  private async spawnIfNeed(key: string): Promise<ChildProcessWithoutNullStreams> {
+    const p = this.processMap.find(e => e.key === key);
+    if (p) {
+      return p.process;
+    }
+
+    const p0 = { key, process: spawn('') };
+    this.processMap.push(p0);
+    return new Promise((resolve, reject) => {
+      p0.process
+        .on('spawn', () => {
+          resolve(p0.process);
+        })
+        .on('error', err => reject(err));
+    });
+  }
+
+  private readonly processMap: Array<{
+    key: string,
+    process: ChildProcessWithoutNullStreams
+  }> = [];
+
   public async transcript(oggStream: ReadStream, filenameBase = 'undefined'): Promise<void> {
     const filename = `./recordings/${Date.now()}-${filenameBase}.webm`;
     try {
       await opusStreamToWebm(oggStream, filename);
 
       const start = new Date();
+
+      const p = await this.spawnIfNeed(filenameBase);
+      oggStream.pipe(p.stdin, { end: true });
 
       const resp = await openai.createTranscription(
         createReadStream(filename) as any as File,
