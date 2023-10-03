@@ -10,14 +10,14 @@ export function createListeningStream(receiver: VoiceReceiver, userId: string, u
     const opusStream = receiver.subscribe(userId, {
       end: {
         behavior: EndBehaviorType.AfterInactivity,
-        duration: 300,
+        duration: 100,
       },
     });
 
     const oggStream = new prism.opus.OggLogicalBitstream({
       opusHead: new prism.opus.OpusHead({
-        channelCount: 2,
-        sampleRate: 48000,
+        channelCount: 1,
+        sampleRate: 24000,
       }),
       pageSizeControl: {
         maxPackets: 10,
@@ -25,6 +25,7 @@ export function createListeningStream(receiver: VoiceReceiver, userId: string, u
     });
 
     botEvent.emit('message', opusStream.pipe(oggStream), userId, user);
+    // botEvent.emit('message', opusStream, userId, user);
   } catch (e) {
     // nothing to do.
   }

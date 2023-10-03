@@ -29,7 +29,7 @@ botEvent.on('message', (inputStream: ReadStream, userId: string, user: User | un
 
     const filenameBase = user ? `${user.username}_${user.discriminator}` : userId;
     try {
-      const transcripter = transcripterFactory(new Client(user, io));
+      const transcripter = transcripterFactory(new Client(user, io), process.env.TRANSCRIPT_METHOD);
       await transcripter.transcript(inputStream, filenameBase);
     } catch (e) {
       console.error(`❌ Failed transcript ${filenameBase} ${(e as Error).message}`);

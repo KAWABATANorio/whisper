@@ -5,7 +5,7 @@ import { botEvent } from './event'
 import { interactionHandlers } from './interactions';
 
 const client = new Client({
-  intents: [GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildMessages, GatewayIntentBits.Guilds],
+  intents: [GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildMessages, GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent], 
 });
 
 client.once(Events.ClientReady, () => {
