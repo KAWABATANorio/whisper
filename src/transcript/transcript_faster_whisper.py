@@ -3,12 +3,10 @@ import time
 from faster_whisper import WhisperModel
 
 if __name__ == "__main__":
-    # Run on GPU with FP16
     model = WhisperModel(
         "large-v2",
         device="cuda",
         compute_type="float16",
-        # local_files_only=True
     )
 
     print("ready.")
