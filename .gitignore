@@ -1,6 +1,7 @@
 config.json
 tsconfig.tsbuildinfo
 recordings/*.webm
+recordings/*.ogg
 dist
 node_modules/
 .env

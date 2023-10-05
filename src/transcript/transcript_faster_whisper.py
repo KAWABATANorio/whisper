@@ -9,7 +9,7 @@ if __name__ == "__main__":
         compute_type="float16",
     )
 
-    print("ready.")
+    # print("ready.")
 
     try:
         while True:
@@ -26,12 +26,17 @@ if __name__ == "__main__":
                     vad_filter=True,
                     vad_parameters=dict(min_silence_duration_ms=250)
                 )
+                f.close()
 
-                print(time.perf_counter() - start)
+                # print(time.perf_counter() - start)
 
+                message = "[result]"
                 for segment in segments:
                     # print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
-                    print("[result]" + segment.text)
+                    message += segment.text
+                print(message)
 
     except KeyboardInterrupt:
         print("Interrupted.")
+    except Exception as e:
+        print(e)

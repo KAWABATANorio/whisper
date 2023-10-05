@@ -21,7 +21,7 @@ export class FasterWhisper extends Transcripter {
     }
 
     const command = path.normalize(process.env.PYTHON_EXECUTABLE!);
-    const param = path.normalize(`${__dirname}/transcript_faster_whisper.py`);
+    const param = path.normalize(appRootPath.resolve('src/transcript/transcript_faster_whisper.py'));
     const p0 = { key, process: spawn(command, ['-u', param]) };
     FasterWhisper.processMap.push(p0);
     return new Promise((resolve, reject) => {
@@ -41,20 +41,21 @@ export class FasterWhisper extends Transcripter {
 
   private transcriptByFasterWhisper(filename: string, childProcess: ChildProcessWithoutNullStreams): Promise<string> {
     return new Promise((resolve, reject) => {
+      let receiveError, receiveData;
       const removeListner = (p: ChildProcessWithoutNullStreams) => {
         p.stderr.removeListener('data', receiveError);
         p.stdout.removeListener('data', receiveData);
       }
 
-      const receiveError = (data: string) => {
+      receiveError = (data: string) => {
         console.log(`Pythonからの出力: ${data}`);
         removeListner(childProcess);
         reject(data);
       };
-      const receiveData = (data: string) => {
+      receiveData = (data: string) => {
         console.log(`Pythonからの出力: ${data}`);
         const r = data.toString().split('[result]');
-        if (r.length > 0) {
+        if (r.length > 1) {
           removeListner(childProcess);
           resolve(r[1]!);
         }
@@ -71,13 +72,13 @@ export class FasterWhisper extends Transcripter {
     return new Promise(resolve0 =>
       oggStream
       .pipe(createWriteStream(filename)
-        .on('close', resolve0), { end: true })
+        .on('finish', resolve0), { end: true })
     );
   }
 
   public async transcript(oggStream: ReadStream, filenameBase = 'undefined'): Promise<void> {
     const start = new Date();
-    const filename = `${appRootPath.path}/recordings/${Date.now()}-${filenameBase}.ogg`;
+    const filename = path.normalize(`${appRootPath.path}/recordings/${Date.now()}-${filenameBase}.ogg`);
     console.log(filename);
 
     try {
@@ -92,7 +93,11 @@ export class FasterWhisper extends Transcripter {
       // nothing to do.
     } finally {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
-      rm(filename, () => {});
+      setTimeout(() => {
+        rm(filename, (e) => {
+          e && console.log(e)
+        });
+      }, 1000);
     }
   }
 }
