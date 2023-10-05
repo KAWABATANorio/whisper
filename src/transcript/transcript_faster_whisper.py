@@ -1,12 +1,20 @@
 import sys
+import os
 import time
+from dotenv import load_dotenv
 from faster_whisper import WhisperModel
+
+load_dotenv(verbose=True)
+
+WHISPER_MODEL = os.environ.get("WHISPER_MODEL") or "large-v2"
+WHISPER_DEVICE = os.environ.get("WHISPER_DEVICE") or "cuda"
+WHISPER_COMPUTE_TYPE = os.environ.get("WHISPER_COMPUTE_TYPE") or "float16"
 
 if __name__ == "__main__":
     model = WhisperModel(
-        "large-v2",
-        device="cuda",
-        compute_type="float16",
+        WHISPER_MODEL,
+        device=WHISPER_DEVICE,
+        compute_type=WHISPER_COMPUTE_TYPE,
     )
 
     # print("ready.")
@@ -15,8 +23,8 @@ if __name__ == "__main__":
         while True:
             paths = sys.stdin.readline().splitlines()
             for path in paths:
-                start = time.perf_counter()
-                print(path)
+                # start = time.perf_counter()
+                # print(path)
                 f = open(path, "rb")
                 segments, info = model.transcribe(
                     f,

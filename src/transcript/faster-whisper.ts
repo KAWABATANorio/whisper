@@ -8,30 +8,29 @@ import { Transcripter } from './transcripter';
 dotenv.config();
 
 export class FasterWhisper extends Transcripter {
+  public override async init(filenameBase: string): Promise<void> {
+    await this.spawnIfNeed(filenameBase);
+  }
 
-  private static processMap: Array<{
-    key: string,
-    process: ChildProcessWithoutNullStreams | undefined
-  }> = [];
+  private static readonly processMap = new Map<string, ChildProcessWithoutNullStreams>();
 
   private async spawnIfNeed(key: string): Promise<ChildProcessWithoutNullStreams> {
-    const p = FasterWhisper.processMap.find(e => e.key === key);
-    if (p?.process) {
-      return p.process;
+    const p = FasterWhisper.processMap.get(key);
+    if (p) {
+      return p;
     }
 
     const command = path.normalize(process.env.PYTHON_EXECUTABLE!);
     const param = path.normalize(appRootPath.resolve('src/transcript/transcript_faster_whisper.py'));
-    const p0 = { key, process: spawn(command, ['-u', param]) };
-    FasterWhisper.processMap.push(p0);
+    const p0 = spawn(command, ['-u', param]);
+    FasterWhisper.processMap.set(key, p0);
     return new Promise((resolve, reject) => {
-      p0.process
-        .on('spawn', () => {
-          console.log(`spawned python ${p0.key}`);
-          resolve(p0.process);
+      p0.on('spawn', () => {
+          console.log(`spawned python ${key}`);
+          resolve(p0);
         })
         .on('close', () => {
-          FasterWhisper.processMap = FasterWhisper.processMap.filter(e => e.key !== key);
+          FasterWhisper.processMap.delete(key);
         })
         .stderr.on('data', err => {
           reject(err);
@@ -41,10 +40,12 @@ export class FasterWhisper extends Transcripter {
 
   private transcriptByFasterWhisper(filename: string, childProcess: ChildProcessWithoutNullStreams): Promise<string> {
     return new Promise((resolve, reject) => {
-      let receiveError, receiveData;
+      let receiveError: ((chunk: any) => void) | undefined = undefined;
+      let receiveData: ((chunk: any) => void) | undefined = undefined;
+
       const removeListner = (p: ChildProcessWithoutNullStreams) => {
-        p.stderr.removeListener('data', receiveError);
-        p.stdout.removeListener('data', receiveData);
+        p.stderr.removeListener('data', receiveError!);
+        p.stdout.removeListener('data', receiveData!);
       }
 
       receiveError = (data: string) => {
@@ -54,10 +55,14 @@ export class FasterWhisper extends Transcripter {
       };
       receiveData = (data: string) => {
         console.log(`Pythonからの出力: ${data}`);
-        const r = data.toString().split('[result]');
-        if (r.length > 1) {
-          removeListner(childProcess);
-          resolve(r[1]!);
+        const message = data.toString();
+        const startTag = '[result]';
+        if (message.startsWith(startTag)) {
+          const r = data.toString().split(startTag);
+          if (r.length > 1) {
+            removeListner(childProcess);
+            resolve(r[1]!);
+          }
         }
       };
 

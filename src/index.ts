@@ -7,7 +7,7 @@ import express from 'express';
 import { Server } from 'socket.io';
 import { client, botEvent } from './bot';
 import { Client } from './client';
-import { transcripterFactory } from './transcript';
+import { transcripterFactory, Transcripter } from './transcript';
 
 dotenv.config();
 
@@ -21,6 +21,15 @@ server.listen(3000);
 
 void client.login(process.env.DISCORD_APP_TOKEN);
 
+const clientMap = new Map<string, Transcripter>();
+
+botEvent.on('start', (userId: string, user: User | undefined) => {
+  const filenameBase = user ? `${user.username}_${user.discriminator}` : userId;
+  const transcripter = transcripterFactory(new Client(user, io), process.env.TRANSCRIPT_METHOD);
+  void transcripter.init(filenameBase);
+  clientMap.set(filenameBase, transcripter);
+});
+
 botEvent.on('message', (inputStream: ReadStream, userId: string, user: User | undefined) => {
   (async () => {
     if (user && !user.hexAccentColor) {
@@ -29,8 +38,7 @@ botEvent.on('message', (inputStream: ReadStream, userId: string, user: User | un
 
     const filenameBase = user ? `${user.username}_${user.discriminator}` : userId;
     try {
-      const transcripter = transcripterFactory(new Client(user, io), process.env.TRANSCRIPT_METHOD);
-      await transcripter.transcript(inputStream, filenameBase);
+      await clientMap.get(filenameBase)?.transcript(inputStream, filenameBase);
     } catch (e) {
       console.error(`❌ Failed transcript ${filenameBase} ${(e as Error).message}`);
     }

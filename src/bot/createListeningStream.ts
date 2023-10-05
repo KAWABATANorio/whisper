@@ -5,6 +5,7 @@ import { botEvent } from './event';
 
 export function createListeningStream(receiver: VoiceReceiver, userId: string, user?: User) {
   console.log(`👂 Started recording ${user ? `${user.username}_${user.discriminator}` : userId}`);
+  botEvent.emit('start', userId, user);
 
   try {
     const opusStream = receiver.subscribe(userId, {

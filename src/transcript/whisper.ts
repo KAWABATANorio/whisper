@@ -27,7 +27,7 @@ export class Whisper extends Transcripter {
         0.2,
         'ja'
       );
-    
+
       console.log(`whisper: ${(new Date().getTime() - start.getTime()).toLocaleString()} ms`);
 
       this.client.onMessage(resp.data as unknown as string);
